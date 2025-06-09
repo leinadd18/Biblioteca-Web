@@ -62,7 +62,7 @@ router.post('/login', async (req, res) => {
       expiresIn: '3d',
     });
 
-    return res.json({ token });
+    return res.json({ token, perfil: usuario.perfil });
 
   } catch (error) {
     console.error('Erro no login:', error);
