@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 
-// Middleware de autenticação
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -18,7 +17,6 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// Middleware para verificar se é bibliotecário
 const Bibliotecario = (req, res, next) => {
     if (req.user.perfil !== 'bibliotecario') {
         return res.status(403).json({ error: 'Acesso negado. Apenas bibliotecários.' });
@@ -26,7 +24,6 @@ const Bibliotecario = (req, res, next) => {
     next();
 };
 
-// Middleware para verificar se é leitor
 const Leitor = (req, res, next) => {
     if (req.user.perfil !== 'leitor') {
         return res.status(403).json({ error: 'Acesso negado. Apenas leitores.' });

@@ -12,10 +12,6 @@ router.post('/cadastro', async (req, res) => {
       return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
     }
 
-    if (!['bibliotecario', 'leitor'].includes(perfil)) {
-      return res.status(400).json({ error: 'Perfil deve ser bibliotecario ou leitor' });
-    }
-
     const [existeUser] = await dbPromise.query('SELECT id FROM usuarios WHERE email = ?', [email]);
     if (existeUser.length > 0) {
       return res.status(400).json({ error: 'Email já cadastrado' });
@@ -62,7 +58,11 @@ router.post('/login', async (req, res) => {
       expiresIn: '3d',
     });
 
-    return res.json({ token, perfil: usuario.perfil });
+    return res.json({
+      token,
+      nome: usuario.nome,
+      perfil: usuario.perfil
+    });
 
   } catch (error) {
     console.error('Erro no login:', error);

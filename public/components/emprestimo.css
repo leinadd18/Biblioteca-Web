@@ -1,0 +1,45 @@
+.botaoDis {
+    background-color: #087bb4;
+    color: #fff;
+    padding: 15px 18px;
+    font-weight: 600;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.botaoDis:hover {
+    background-color: #005682;
+    transform: translateY(-5px);
+}
+.botaoDis:active {
+    transform: scale(0.8);
+}
+
+.marcar {
+     background-color: #17410a;
+    color: #fff;
+    padding: 15px 8px;
+    font-weight: 600;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.4s ease-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.marcar:hover {
+    background-color: #1c7900;
+    transform: scale(1.0);
+}
+
+.marcar:active {
+    transform: scale(0.5);
+}
+
+.voltar {
+    display: flex;
+    justify-content: end;
+}

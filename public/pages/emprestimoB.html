@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.0/dist/sweetalert2.min.css"
         integrity="sha256-NWFDlc+2O5YBqGykjREpkSKDMB6yEu5qPecoRrhcsC0=" crossorigin="anonymous">
     <link rel="stylesheet" href="../components/styledL.css">
+    <link rel="stylesheet" href="../components/emprestimo.css">
     <title>Biblioteca Web</title>
 </head>
 
@@ -23,23 +24,23 @@
     </header>
     <main>
         <div class="Titulo">
-            <h1 id="boas-vindas"></h1>
+            <h1>Empréstimos Pendentes</h1>
         </div>
         <section>
-            
-            <div class="subtitulo">
-                <h1>Livros Disponíveis:</h1>
-                <button class="botaoEm" onclick="Meus()">Meus empréstimos</button>
+
+            <div class="voltar">
+                <button class="botaoDis" onclick="voltar()">Livros Disponíveis</button>
             </div>
-            <table border="2" id="tabela-livros">
+            <table border="2" id="tabela-emprestimos">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Título</th>
-                        <th>Autor</th>
-                        <th>Ano</th>
-                        <th>Disponível</th>
-                        <th>Ação</th>
+                        <th>Livro</th>
+                        <th>Leitor</th>
+                        <th>Data Empréstimo</th>
+                        <th>Data prevista de devolução</th>
+                        <th>Status</th>
+                        <th>Devoluções Solicitadas</th>
+                        <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -57,7 +58,7 @@
             Brenda, Daniel e Gabriel</p>
     </footer>
 </body>
-<script src="../scripts/HomeL.js"></script>
+<script src="../scripts/emprestimoB.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.0/dist/sweetalert2.all.min.js"
     integrity="sha256-WjwoxFTbs4JzyDmrHgK4VgR+Dz7he8HYwCbocAlNn9k=" crossorigin="anonymous"></script>
 

@@ -35,6 +35,14 @@ app.get('/leitor', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'pages', 'HomeL.html'));
 });
 
+app.get('/MeusEmprestimos', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'pages', 'emprestimoL.html'));
+});
+
+app.get('/Emprestimos', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'pages', 'emprestimoB.html'));
+});
+
 app.get('/bibliotecario', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'pages', 'HomeB.html'));
 });

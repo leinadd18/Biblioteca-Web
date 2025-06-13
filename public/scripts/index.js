@@ -18,6 +18,7 @@ document.getElementById('submit').addEventListener('click', async (e) => {
         if (api.ok) {
             localStorage.setItem('token', user.token);
             localStorage.setItem('perfil', user.perfil);
+            localStorage.setItem('nome', user.nome);
 
             Swal.fire({
                 icon: 'success',

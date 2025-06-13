@@ -5,13 +5,12 @@ const router = express.Router();
 
 router.use(authenticateToken);
 
-// Listar empréstimos
 router.get('/', async (req, res) => {
   try {
     let emprestimos;
 
     if (req.user.perfil === 'bibliotecario') {
-      // Bibliotecário vê todos os empréstimos
+
       const [rows] = await dbPromise.query(`
         SELECT e.*, l.titulo, l.autor, u.nome as leitor_nome 
         FROM emprestimos e
@@ -21,9 +20,9 @@ router.get('/', async (req, res) => {
       `);
       emprestimos = rows;
     } else {
-      // Leitor vê apenas seus empréstimos
+  
       const [rows] = await dbPromise.query(`
-        SELECT e.*, l.titulo, l.autor 
+        SELECT e.*, l.titulo, l.autor, l.ano_publicacao 
         FROM emprestimos e
         JOIN livros l ON e.livro_id = l.id
         WHERE e.leitor_id = ?
@@ -34,12 +33,10 @@ router.get('/', async (req, res) => {
 
     res.json(emprestimos);
   } catch (error) {
-    console.error('Erro ao buscar empréstimos:', error);
-    res.status(500).json({ error: 'Erro interno do servidor' });
+    res.status(500).json({ error: 'Erro ao buscar empréstimos'});
   }
 });
 
-// Solicitar empréstimo (apenas leitor)
 router.post('/solicitar', Leitor, async (req, res) => {
   try {
     const { livro_id } = req.body;
@@ -49,7 +46,6 @@ router.post('/solicitar', Leitor, async (req, res) => {
       return res.status(400).json({ error: 'ID do livro é obrigatório' });
     }
 
-    // Verificar se o livro existe
     const [livros] = await dbPromise.query('SELECT * FROM livros WHERE id = ?', [livro_id]);
     if (livros.length === 0) {
       return res.status(404).json({ error: 'Livro não encontrado' });
@@ -60,18 +56,15 @@ router.post('/solicitar', Leitor, async (req, res) => {
       return res.status(400).json({ error: 'Livro não disponível para empréstimo' });
     }
 
-    // Calcular datas
     const data_emprestimo = new Date().toISOString().split('T')[0];
     const data_devolucao_prevista = new Date();
     data_devolucao_prevista.setDate(data_devolucao_prevista.getDate() + 14);
 
-    // Criar empréstimo
     await dbPromise.query(
       'INSERT INTO emprestimos (livro_id, leitor_id, data_emprestimo, data_devolucao_prevista, status) VALUES (?, ?, ?, ?, "ativo")',
       [livro_id, leitor_id, data_emprestimo, data_devolucao_prevista.toISOString().split('T')[0]]
     );
 
-    // Atualizar quantidade do livro
     await dbPromise.query(
       'UPDATE livros SET quantidade_disponivel = quantidade_disponivel - 1 WHERE id = ?',
       [livro_id]
@@ -79,17 +72,55 @@ router.post('/solicitar', Leitor, async (req, res) => {
 
     res.status(201).json({ message: 'Empréstimo solicitado com sucesso!' });
   } catch (error) {
-    console.error('Erro ao solicitar empréstimo:', error);
-    res.status(500).json({ error: 'Erro interno do servidor' });
+    res.status(500).json({ error: 'Erro ao solicitar empréstimo'});
   }
 });
 
-// Devolver livro (apenas bibliotecário)
+router.post('/solicitar-devolucao', Leitor, async (req, res) => {
+  try {
+    const { emprestimo_id } = req.body;
+    const leitor_id = req.user.id;
+
+    if (!emprestimo_id) {
+      return res.status(400).json({ error: 'ID do empréstimo é obrigatório' });
+    }
+
+    const [emprestimos] = await dbPromise.query(
+      'SELECT * FROM emprestimos WHERE id = ? AND leitor_id = ?',
+      [emprestimo_id, leitor_id]
+    );
+
+    if (emprestimos.length === 0) {
+      return res.status(404).json({ error: 'Empréstimo não encontrado ou não pertence ao leitor' });
+    }
+
+    const emprestimo = emprestimos[0];
+
+    if (emprestimo.status === 'devolvido') {
+      return res.status(400).json({ error: 'Este livro já foi devolvido' });
+    }
+
+    if (emprestimo.devolucao_solicitada) {
+      return res.status(400).json({ error: 'A devolução já foi solicitada' });
+    }
+
+    await dbPromise.query(
+      'UPDATE emprestimos SET devolucao_solicitada = 1 WHERE id = ?',
+      [emprestimo_id]
+    );
+
+    res.json({ message: 'Solicitação de devolução enviada com sucesso' });
+
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao solicitar devolução'});
+  }
+});
+
+
 router.put('/:id/devolver', Bibliotecario, async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Buscar empréstimo
     const [emprestimos] = await dbPromise.query('SELECT * FROM emprestimos WHERE id = ?', [id]);
     if (emprestimos.length === 0) {
       return res.status(404).json({ error: 'Empréstimo não encontrado' });
@@ -100,24 +131,20 @@ router.put('/:id/devolver', Bibliotecario, async (req, res) => {
       return res.status(400).json({ error: 'Empréstimo já foi devolvido' });
     }
 
-    const data_devolucao_real = new Date().toISOString().split('T')[0];
+    const data_emprestimo = new Date().toISOString().split('T')[0];
 
-    // Atualizar status do empréstimo
     await dbPromise.query(
-      'UPDATE emprestimos SET status = "devolvido", data_devolucao_real = ? WHERE id = ?',
-      [data_devolucao_real, id]
+      'UPDATE emprestimos SET status = "devolvido", data_emprestimo = ? WHERE id = ?',
+      [data_emprestimo, id]
     );
 
-    // Aumentar a quantidade disponível do livro
     await dbPromise.query(
       'UPDATE livros SET quantidade_disponivel = quantidade_disponivel + 1 WHERE id = ?',
       [emprestimo.livro_id]
     );
 
-    res.json({ message: 'Devolução aprovada com sucesso!' });
   } catch (error) {
-    console.error('Erro ao aprovar devolução:', error);
-    res.status(500).json({ error: 'Erro interno do servidor' });
+    res.status(500).json({ error: 'Erro ao aprovar devolução' });
   }
 });
 
