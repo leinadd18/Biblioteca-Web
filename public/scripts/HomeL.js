@@ -86,20 +86,21 @@ async function solicitarEmprestimo(botao, livroId) {
             body: JSON.stringify({ livro_id: livroId }),
         });
 
-        Swal.fire({
-            icon: 'success',
-            title: 'Empréstimo solicitado com sucesso!',
-            confirmButtonColor: '#006600',
-            color: '#222'
-        }).then(() => {
+        if (resposta.ok) {
+            await Swal.fire({
+                icon: 'success',
+                title: 'Empréstimo solicitado com sucesso!',
+                confirmButtonColor: '#006600',
+                color: '#222'
+            });
             window.location.reload();
-        });
+        }
 
     } catch (erro) {
         Swal.fire({
-                icon: 'error',
-                title: 'Não foi possível solicitar o empréstimo.',
-                confirmButtonColor: '#a70000',
+            icon: 'error',
+            title: 'Não foi possível solicitar o empréstimo.',
+            confirmButtonColor: '#a70000',
         });
     }
 }

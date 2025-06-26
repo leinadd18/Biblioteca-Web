@@ -41,11 +41,13 @@ router.post('/login', async (req, res) => {
     }
 
     const [rows] = await dbPromise.query('SELECT * FROM usuarios WHERE email = ?', [email]);
-    const usuario = rows[0];
 
-    if (!usuario) {
+    if (rows.length === 0) {
       return res.status(400).json({ error: 'Credenciais inválidas' });
     }
+
+    const usuario = rows[0];
+
 
     const passwordMatch = await bcrypt.compare(senha, usuario.senha);
 
