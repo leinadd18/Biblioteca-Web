@@ -14,8 +14,6 @@ async function carregarEmprestimos() {
       }
     });
 
-    console.log('Status da resposta:', res.status);
-
     if (!res.ok) {
       const texto = await res.text();
       console.error('Erro na resposta:', texto);
@@ -78,6 +76,7 @@ async function devolverLivro(id) {
     cancelButtonText: 'Cancelar',
     color: '#222',
   });
+
   if (confirmacao.isConfirmed) {
     try {
       const res = await fetch(`http://localhost:3025/api/emprestimos/${id}/devolver`, {
@@ -88,21 +87,25 @@ async function devolverLivro(id) {
       });
 
       if (res.ok) {
-        Swal.fire({
+        await Swal.fire({
           icon: 'success',
           title: 'Devolução aprovada com sucesso!',
           showConfirmButton: false,
           color: '#222',
           timer: 1500
-        }).then(() => {
-          carregarEmprestimos();
         });
 
+        carregarEmprestimos();
       }
+
     } catch (error) {
-      alert('Erro ao marcar devolvido.');
+      console.error('Erro no fetch:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro!',
+        text: 'Algo deu errado.',
+        color: '#222'
+      });
     }
   }
 }
-
-

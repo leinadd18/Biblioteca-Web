@@ -40,18 +40,17 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Email e senha são obrigatórios' });
     }
 
-    const [user] = await dbPromise.query('SELECT * FROM usuarios WHERE email = ?', [email]);
+    const [rows] = await dbPromise.query('SELECT * FROM usuarios WHERE email = ?', [email]);
+    const usuario = rows[0];
 
-    if (user.length === 0) {
-      return res.status(401).json({ error: 'Email ou senha inválidos' });
+    if (!usuario) {
+      return res.status(400).json({ error: 'Credenciais inválidas' });
     }
-
-    const usuario = user[0];
 
     const passwordMatch = await bcrypt.compare(senha, usuario.senha);
 
     if (!passwordMatch) {
-      return res.status(401).json({ error: 'Email ou senha inválidos' });
+      return res.status(401).json({ error: 'Credenciais inválidas' });
     }
 
     const token = jwt.sign({ id: usuario.id, perfil: usuario.perfil }, process.env.JWT_SECRET, {

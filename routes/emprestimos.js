@@ -143,6 +143,8 @@ router.put('/:id/devolver', Bibliotecario, async (req, res) => {
       [emprestimo.livro_id]
     );
 
+     res.json({ message: 'Empréstimo marcado como devolvido com sucesso.' });
+
   } catch (error) {
     res.status(500).json({ error: 'Erro ao aprovar devolução' });
   }
